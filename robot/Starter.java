@@ -126,7 +126,7 @@ public class Starter implements Directions {
 
     Starter starter = new Starter();
     try {
-      starter.readPbmP4("robot/data/1f928.pbm");
+      starter.readPbmP4("robot/data/initials.pbm");
     } catch (IOException e) {
       System.err.println("reading error (probably file): " + e.getMessage());
       e.printStackTrace();
