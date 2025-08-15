@@ -1,9 +1,11 @@
 {
-  "java.project.sourcePaths": [
-    ""
-  ],
+  "java.project.sourcePaths": [""],
   "java.project.referencedLibraries": [
     "irregularPolygon/gpdraw.jar",
-    "robot/KarelJRobot.jar"
+    "robot/KarelJRobot.jar",
+    "robot/imageio-core.jar",
+    "robot/imageio-pnm-3.12.0.jar",
+    "robot/common-lang-3.12.0.jar",
+    "robot/common-io-3.12.0.jar"
   ]
 }
