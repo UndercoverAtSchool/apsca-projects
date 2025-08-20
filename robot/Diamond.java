@@ -47,7 +47,13 @@ public class Diamond implements Directions {
     }
 
     private void drawLineFromPoints(List<Point> pointList) {
-        Robot linerob = new Robot(pointList.get(0).y, pointList.get(0).x, South, 100);
+        // otherwise directionality ends up being a problem.
+        pointList.sort((a, b) -> {
+            int da = Math.abs(a.x - pointList.get(0).x) + Math.abs(a.y - pointList.get(0).y);
+            int db = Math.abs(b.x - pointList.get(0).x) + Math.abs(b.y - pointList.get(0).y);
+            return Integer.compare(da, db);
+        });
+        Robot linerob = new Robot(pointList.get(0).y, pointList.get(0).x, South, pointList.size());
         Direction[] dirs = new Direction[2];
 
         if (pointList.getLast().x - pointList.getFirst().x > 0) {
@@ -57,40 +63,104 @@ public class Diamond implements Directions {
         }
 
         if (pointList.getLast().y - pointList.getFirst().y > 0) {
-            dirs[0] = North;
+            dirs[1] = North;
         } else {
-            dirs[0] = South;
+            dirs[1] = South;
         }
         // linerob - spawn at first point, go through points, move vertical diff num
         // times, move horizontal diff num times
 
         Direction currentDir = South;
-        Point currentPos = new Point(pointList.get(0).y, pointList.get(0).x);
+        Point currentPos = new Point(pointList.get(0).x, pointList.get(0).y);
+        List<Point> pointless = pointList.subList(1, pointList.size());
 
-        int currentIndex = 1;
-        for (Point point : pointList) {
+        for (Point point : pointless) {
             while (!(dirs[0] == currentDir)) {
                 linerob.turnLeft();
+                currentDir = currentDir.rotate(-1);
             }
             // horizontally aligned
-            // while (!(currentPos.x) ==
+            while (!(currentPos.x == point.x)) {
+                linerob.move();
+                currentPos.x = currentPos.x + (currentDir == East ? 1 : -1);
+            }
+            while (!(dirs[1] == currentDir)) {
+                linerob.turnLeft();
+                currentDir = currentDir.rotate(-1);
 
+            }
+            while (!(currentPos.y == point.y)) {
+                linerob.move();
+                currentPos.y = currentPos.y + (currentDir == North ? 1 : -1);
+            }
+            linerob.putBeeper();
+            // if (currentIndex == pointList.size()) {
+            // break;
+            // }
         }
+        linerob.putBeeper();
+        linerob.turnOff();
+        // for (int i = 0; i < 100; i++) {
+
+        // int prevdelay = World.delay();
+        // World.setDelay(0);
+        // linerob.move();
+        // World.setDelay(prevdelay);
+        // }
 
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
         Diamond diamond = new Diamond();
 
         World.setVisible(true);
-        World.setSize(20, 20);
+        int dimSquare = 20;
+        World.setSize(dimSquare, dimSquare);
+        World.setDelay(1);
 
-        Robot rob = new Robot(15, 2, South, 9);
+        List<Point> points = diamond.getLinePoints(new Point(1, 1), new Point(10, 10));
+        // System.out.print(points.get(0).x);
+        // diamond.drawLineFromPoints(points);
 
-        // draw from (2, 3) to (5, 8) to test
-        List<Point> points = diamond.getLinePoints(new Point(2, 3), new Point(4, 6));
-        System.out.print(points.get(0).x);
+        // generate n-gon
+        // essentially: anchor first right of center (at 0), generate next, snap next to
+        // grid
+
+        int sides = 6;
+        int rad = 8; // must be < 1/2 dimsquare
+        if ((2 * rad) >= dimSquare) {
+            throw new Exception("rad too large");
+        }
+
+        // center defined as half dimsquare
+        Point center = new Point(dimSquare / 2, dimSquare / 2);
+        // potential to screw up here a little?
+
+        List<Point> ngonPoints = new ArrayList<>();
+
+        // doublecount first point - that way, no special handling for last line
+        for (int i = 0; i <= sides; i++) {
+            // i = side# - 1
+            double angle = (2 * Math.PI * i) / sides;
+            double rawXDiff = Math.cos(angle) * rad;
+            double rawYDiff = Math.sin(angle) * rad;
+            int realX = center.x + (int) Math.round(rawXDiff);
+            int realY = center.y + (int) Math.round(rawYDiff);
+
+            ngonPoints.add(new Point(realX, realY));
+        }
+
+        // do not count last point (it is endpoint)
+        for (int i = 0; i < sides; i++) {
+            Point p1 = ngonPoints.get(i);
+            Point p2 = ngonPoints.get(i + 1);
+            System.out.println(p1.x);
+            System.out.println(p1.y);
+            System.out.println(p2.x);
+            System.out.println(p2.y);
+            diamond.drawLineFromPoints(diamond.getLinePoints(p1, p2));
+        }
 
     }
 }
