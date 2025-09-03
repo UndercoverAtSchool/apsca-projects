@@ -28,7 +28,7 @@ public class Roomba implements Directions {
 
 		World.readWorld(worldName);
 		World.setVisible(true);
-		World.setDelay(2);
+		World.setDelay(1);
 
 		roomba = new Robot(startX, startY, North, 0);
 		roomba.move();
@@ -55,6 +55,7 @@ public class Roomba implements Directions {
 
 		while (true) {
 			int pileSize = 0;
+			totalCells++;
 			while (roomba.nextToABeeper()) {
 				pileSize++;
 				roomba.pickBeeper();
@@ -86,9 +87,9 @@ public class Roomba implements Directions {
 					roomba.move();
 					roomba.turnLeft();
 				}
+				totalCells++;
 			}
 			roomba.move();
-			totalCells++;
 		}
 
 		int largestPileRelative1 = initialPosition[0] - largestPileLoc[0];
@@ -98,7 +99,7 @@ public class Roomba implements Directions {
 		System.out.println("Number of piles: " + totalPiles);
 		System.out.println("Total beeper count: " + totalBeepers);
 		System.out.println("Largest pile size: " + largestPile);
-		System.out.println("Largest pile is at (relative to start location): (" + -1 * largestPileRelative1 + ", "
+		System.out.println("Largest pile is at (relative to top left): (" + -1 * largestPileRelative1 + ", "
 				+ largestPileRelative2 + ")");
 		System.out.println("Average pile size: " + Math.round((double) totalBeepers / totalPiles));
 		System.out.println("Percent area dirty: " + Math.round(100 * (double) totalPiles / totalCells) + "%");
@@ -106,7 +107,7 @@ public class Roomba implements Directions {
 		return totalBeepers;
 	}
 
-	public int cleanRoomBranched(String worldName, int startX, int startY) {
+	public int cleanRoomSpiral(String worldName, int startX, int startY) {
 		return 0;
 	}
 }
