@@ -43,15 +43,31 @@ public class Roomba implements Directions {
 		}
 
 		int totalBeepers = 0;
+		int totalPiles = 0;
+		int largestPile = 0;
+		int[] largestPileLoc = new int[2];
+		int totalCells = 0;
+		int[] initialPosition = { roomba.avenue(), roomba.street() };
 
 		// now - facing South in top left corner
 		roomba.turnLeft(); // facing east-west
 		// facing East in top left corner
 
 		while (true) {
+			int pileSize = 0;
 			while (roomba.nextToABeeper()) {
+				pileSize++;
 				roomba.pickBeeper();
 				totalBeepers++;
+			}
+
+			if (pileSize != 0) {
+				totalPiles++;
+			}
+			if (pileSize > largestPile) {
+				largestPile = pileSize;
+				largestPileLoc[0] = roomba.avenue();
+				largestPileLoc[1] = roomba.street();
 			}
 
 			if (!roomba.frontIsClear()) {
@@ -72,8 +88,25 @@ public class Roomba implements Directions {
 				}
 			}
 			roomba.move();
+			totalCells++;
 		}
 
+		int largestPileRelative1 = initialPosition[0] - largestPileLoc[0];
+		int largestPileRelative2 = initialPosition[1] - largestPileLoc[1];
+
+		System.out.println("Room area: " + totalCells);
+		System.out.println("Number of piles: " + totalPiles);
+		System.out.println("Total beeper count: " + totalBeepers);
+		System.out.println("Largest pile size: " + largestPile);
+		System.out.println("Largest pile is at (relative to start location): (" + -1 * largestPileRelative1 + ", "
+				+ largestPileRelative2 + ")");
+		System.out.println("Average pile size: " + Math.round((double) totalBeepers / totalPiles));
+		System.out.println("Percent area dirty: " + Math.round(100 * (double) totalPiles / totalCells) + "%");
+
 		return totalBeepers;
+	}
+
+	public int cleanRoomBranched(String worldName, int startX, int startY) {
+		return 0;
 	}
 }
