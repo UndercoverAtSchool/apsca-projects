@@ -1,18 +1,25 @@
 package robot;
 
+import java.util.concurrent.TimeoutException;
+import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
 
 import kareltherobot.*;
 
 public class Roomba implements Directions {
 
+	static int[] initialPos = { 25, 11 };
+	static int worldSpeed = 1;
+
 	// Main method to make this self-contained
 	public static void main(String[] args) {
 		// LEAVE THIS ALONE!!!!!!
-		String worldName = "robot/basicRoom.wld";
+		// basic - start at 7, 6
+		// test 1 - start at 25, 11
+		String worldName = "robot/TestWorld-1.wld";
 
 		Roomba cleaner = new Roomba();
-		int totalBeepers = cleaner.cleanRoom(worldName, 7, 6);
+		int totalBeepers = cleaner.cleanRoom(worldName, initialPos[0], initialPos[1]);
 		System.out.println("Roomba cleaned up a total of " + totalBeepers + " beepers.");
 
 	}
@@ -27,6 +34,9 @@ public class Roomba implements Directions {
 	private Robot roomba;
 	private int beepers;
 	private int piles;
+	private int[] largestPilePos = { 0, 0 };
+	private int largestPileSize;
+	private int totalCellCount;
 
 	public static void logInfo(int totalCells, int totalPiles, int totalBeepers, int largestPile, int[] initialPosition,
 			int[] largestPileLoc) {
@@ -80,27 +90,12 @@ public class Roomba implements Directions {
 
 	}
 
-	public void pickAll(Robot roomba) {
-		int pileSize = 0;
-		while (roomba.nextToABeeper()) {
-			roomba.pickBeeper();
-			pileSize++;
-		}
-		if (pileSize == 0) {
-			return;
-		}
-		beepers += pileSize;
-		piles++;
-
-	}
-
 	public void moveX(Robot roomba, int count) {
 		IntStream.range(0, count).forEach(i -> {
 			pickAll(roomba);
 			if (roomba.frontIsClear()) { // soft fail
 				roomba.move();
 			}
-
 		});
 		pickAll(roomba);
 	}
@@ -108,9 +103,9 @@ public class Roomba implements Directions {
 	public int cleanRoom(String worldName, int startX, int startY) {
 		World.readWorld(worldName);
 		World.setVisible(true);
-		World.setDelay(5);
+		World.setDelay(worldSpeed);
 
-		return cleanRoomSpiral(worldName, startX, startY);
+		return cleanRoomSpiral2(worldName, startX, startY);
 	}
 
 	public int cleanRoomRectangle(String worldName, int startX, int startY) {
@@ -197,5 +192,91 @@ public class Roomba implements Directions {
 		}
 
 		return 0;
+	}
+
+	// bottom is self sufficient
+
+	public int pickAll(Robot roomba) {
+		int pileSize = 0;
+		while (roomba.nextToABeeper()) {
+			roomba.pickBeeper();
+			pileSize++;
+		}
+		if (pileSize == 0) {
+			return 0;
+		}
+		beepers += pileSize;
+		piles++;
+		return beepers;
+
+	}
+
+	public void updateLocIfNeeded(int num) {
+		if (num > largestPileSize) {
+			largestPileSize = num;
+			System.out.println("updated to " + num);
+			largestPilePos[0] = roomba.avenue();
+			largestPilePos[1] = roomba.street();
+		}
+	}
+
+	public int cleanRoomSpiral2(String worldName, int startX, int startY) {
+
+		// only two methods used here for demonstration purposes:
+		// updateLocIfNeeded and pickAll
+		roomba = new Robot(startX, startY, West, 0);
+		for (int n = 0; n < 2; n++) { // left, then down
+			while (roomba.frontIsClear()) {
+				roomba.move();
+				totalCellCount++;
+			}
+			roomba.turnLeft();
+		}
+		// facing EAST, in bottom left corner - this is where it starts regardless, but
+		// this is to ensure in all rectangles
+
+		int[] dims = { 0, 0 };
+
+		// define initial values of dims (i and j), then repeat in circles
+		while (roomba.frontIsClear()) {
+			dims[0]++;
+			updateLocIfNeeded(pickAll(roomba));
+			roomba.move();
+			totalCellCount++;
+		}
+		roomba.turnLeft();
+		while (roomba.frontIsClear()) {
+			dims[1]++;
+			updateLocIfNeeded(pickAll(roomba));
+			roomba.move();
+			totalCellCount++;
+		}
+		roomba.turnLeft();
+
+		// stop once can no longer spiral
+
+		while (dims[0] != 0 && dims[1] != 0) {
+			for (int i = 0; i < dims[0]; i++) {
+				updateLocIfNeeded(pickAll(roomba));
+				roomba.move();
+				totalCellCount++;
+			}
+			dims[0]--;
+
+			roomba.turnLeft();
+			for (int i = 0; i < dims[1]; i++) {
+				updateLocIfNeeded(pickAll(roomba));
+				roomba.move();
+				totalCellCount++;
+			}
+			dims[1]--;
+			roomba.turnLeft();
+
+		}
+		updateLocIfNeeded(pickAll(roomba));
+		// pick all up, since parity issues on last one
+		logInfo(totalCellCount, piles, beepers, largestPileSize, initialPos, largestPilePos);
+
+		return beepers;
 	}
 }
