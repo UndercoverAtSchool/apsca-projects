@@ -1,13 +1,12 @@
 package robot;
 
-import java.util.concurrent.TimeoutException;
-import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
 
 import kareltherobot.*;
 
 public class Roomba implements Directions {
 
+	// static int[] initialPos = { 7, 6 };
 	static int[] initialPos = { 25, 11 };
 	static int worldSpeed = 1;
 
@@ -17,6 +16,7 @@ public class Roomba implements Directions {
 		// basic - start at 7, 6
 		// test 1 - start at 25, 11
 		String worldName = "robot/TestWorld-1.wld";
+		// String worldName = "robot/basicRoom.wld";
 
 		Roomba cleaner = new Roomba();
 		int totalBeepers = cleaner.cleanRoom(worldName, initialPos[0], initialPos[1]);
@@ -39,7 +39,7 @@ public class Roomba implements Directions {
 	private int totalCellCount;
 
 	public static void logInfo(int totalCells, int totalPiles, int totalBeepers, int largestPile, int[] initialPosition,
-			int[] largestPileLoc) {
+			int[] largestPileLoc, boolean useNewCoords) {
 
 		int largestPileRelative1 = initialPosition[0] - largestPileLoc[0];
 		int largestPileRelative2 = initialPosition[1] - largestPileLoc[1];
@@ -48,8 +48,15 @@ public class Roomba implements Directions {
 		System.out.println("Number of piles: " + totalPiles);
 		System.out.println("Total beeper count: " + totalBeepers);
 		System.out.println("Largest pile size: " + largestPile);
-		System.out.println("Largest pile is at (relative to top left): (" + -1 * largestPileRelative1 + ", "
-				+ largestPileRelative2 + ")");
+		if (useNewCoords) {
+			System.out.println(
+					"Largest pile is at (relative to bottom left): " + -1 * largestPileRelative2 + " units right and "
+							+ largestPileRelative1 + " units up.");
+
+		} else {
+			System.out.println("Largest pile is at (relative to top left): (" + -1 * largestPileRelative1 + ", "
+					+ largestPileRelative2 + ")");
+		}
 		System.out.println("Average pile size: " + Math.round((double) totalBeepers / totalPiles));
 		System.out.println("Percent area dirty: " + Math.round(100 * (double) totalPiles / totalCells) + "%");
 
@@ -164,7 +171,7 @@ public class Roomba implements Directions {
 			roomba.move();
 		}
 
-		logInfo(totalCells, totalPiles, totalBeepers, largestPile, initialPosition, largestPileLoc);
+		logInfo(totalCells, totalPiles, totalBeepers, largestPile, initialPosition, largestPileLoc, false);
 
 		return totalBeepers;
 	}
@@ -207,7 +214,7 @@ public class Roomba implements Directions {
 		}
 		beepers += pileSize;
 		piles++;
-		return beepers;
+		return pileSize;
 
 	}
 
@@ -228,7 +235,6 @@ public class Roomba implements Directions {
 		for (int n = 0; n < 2; n++) { // left, then down
 			while (roomba.frontIsClear()) {
 				roomba.move();
-				totalCellCount++;
 			}
 			roomba.turnLeft();
 		}
@@ -242,24 +248,23 @@ public class Roomba implements Directions {
 			dims[0]++;
 			updateLocIfNeeded(pickAll(roomba));
 			roomba.move();
-			totalCellCount++;
 		}
 		roomba.turnLeft();
 		while (roomba.frontIsClear()) {
 			dims[1]++;
 			updateLocIfNeeded(pickAll(roomba));
 			roomba.move();
-			totalCellCount++;
 		}
 		roomba.turnLeft();
+		int area = (dims[0] + 1) * (dims[1] + 1);
 
-		// stop once can no longer spiral
+		// after defining dimensions, circle, progressively removing a dimension until
+		// no longer can
 
-		while (dims[0] != 0 && dims[1] != 0) {
+		while (dims[0] > 0 && dims[1] > 0) { // stop once can no longer spiral
 			for (int i = 0; i < dims[0]; i++) {
 				updateLocIfNeeded(pickAll(roomba));
 				roomba.move();
-				totalCellCount++;
 			}
 			dims[0]--;
 
@@ -267,15 +272,14 @@ public class Roomba implements Directions {
 			for (int i = 0; i < dims[1]; i++) {
 				updateLocIfNeeded(pickAll(roomba));
 				roomba.move();
-				totalCellCount++;
 			}
 			dims[1]--;
 			roomba.turnLeft();
 
 		}
-		updateLocIfNeeded(pickAll(roomba));
-		// pick all up, since parity issues on last one
-		logInfo(totalCellCount, piles, beepers, largestPileSize, initialPos, largestPilePos);
+		updateLocIfNeeded(pickAll(roomba)); // pick all up, since parity issues on last one
+		logInfo(area, piles, beepers, largestPileSize, initialPos,
+				largestPilePos, true);
 
 		return beepers;
 	}
