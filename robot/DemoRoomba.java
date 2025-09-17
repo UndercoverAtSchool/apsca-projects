@@ -1,7 +1,5 @@
 package robot;
 
-import java.util.stream.IntStream;
-
 import kareltherobot.*;
 
 public class DemoRoomba implements Directions {
@@ -9,48 +7,23 @@ public class DemoRoomba implements Directions {
 	static int worldSpeed = 0;
 	private Robot roomba;
 
-	public static void logInfo(int totalCells, int totalPiles, int totalBeepers, int largestPile, int[] cornerPos,
-			int[] largestPileLoc, int dim1, int dim2) {
-
-		int largestPileRelative1 = largestPileLoc[0] - cornerPos[0];
-		int largestPileRelative2 = largestPileLoc[1] - cornerPos[1];
-
-		System.out.println("-".repeat(10) + " RESULTS " + "-".repeat(10));
-
-		System.out.println("Room area: " + totalCells);
-		System.out.println("Number of piles: " + totalPiles);
-		System.out.println("Total beeper count: " + totalBeepers);
-		System.out.println("Largest pile size: " + largestPile);
-		System.out.println(
-				"Largest pile is at (relative to bottom left): " + largestPileRelative2 + " units right and "
-						+ largestPileRelative1 + " units up.");
-
-		System.out.println("Average pile size: " + Math.round((double) totalBeepers / totalPiles));
-		System.out.println(
-				"Percent area dirty: " + (double) Math.round(10000 * (double) totalPiles / totalCells) / 100 + "%");
-		System.out.println("Dimensions: h" + dim1 + ", w" + dim2);
-
-		System.out.println("-".repeat(29));
-
-	}
-
-	static int[] initialPos = { 26, 149 };
-	// basicRoom.wld - start at 7, 6
-	// TestWorld-1.wld - start at 25, 11
-	// finalTestWorld2024.wld - 26, 149
-
 	public static void main(String[] args) {
 		String worldName = "robot/wld/finalTestWorld2024.wld";
 
 		DemoRoomba cleaner = new DemoRoomba();
-		cleaner.cleanRoom(worldName, initialPos[0], initialPos[1]);
+		// basicRoom.wld - start at 7, 6
+		// TestWorld-1.wld - start at 25, 11
+		// finalTestWorld2024.wld - 26, 149
+
+		cleaner.cleanRoom(worldName, 26, 149);
 
 	}
 
 	private int beepers;
 	private int piles;
 	private int largestPileSize = 0;
-	private int[] largestPilePos = { 0, 0 };
+	private int largestPilePosAve = 0; // horizontal (avenue)
+	private int largestPilePosStreet = 0; // vertical (street)
 
 	public void pickAllAndUpdateLargest(Robot roomba) {
 
@@ -69,9 +42,8 @@ public class DemoRoomba implements Directions {
 		if (pileSize > largestPileSize) {
 			largestPileSize = pileSize;
 			System.out.println("Found new largest pile: " + pileSize);
-			largestPilePos[0] = roomba.street();
-			largestPilePos[1] = roomba.avenue();
-
+			largestPilePosStreet = roomba.street();
+			largestPilePosAve = roomba.avenue();
 		}
 
 	}
@@ -95,7 +67,8 @@ public class DemoRoomba implements Directions {
 		}
 		roomba.turnLeft();
 
-		int[] bottomLeft = { roomba.street(), roomba.avenue() };
+		int bottomLeftStreet = roomba.street(); // vertical (street)
+		int bottomLeftAve = roomba.avenue(); // horizontal (avenue)
 
 		// Now faces RIGHT/EAST
 
@@ -138,8 +111,23 @@ public class DemoRoomba implements Directions {
 
 		}
 		pickAllAndUpdateLargest(roomba); // Doesn't pick up last one - we must do it manually
-		logInfo(area, piles, beepers, largestPileSize, bottomLeft,
-				largestPilePos, height, width);
+
+		int largestPileRelativeStreet = largestPilePosStreet - bottomLeftStreet; // vertical (up)
+		int largestPileRelativeAve = largestPilePosAve - bottomLeftAve; // horizontal (right)
+
+		System.out.println("-".repeat(10) + " RESULTS " + "-".repeat(10));
+		System.out.println("Room area: " + area);
+		System.out.println("Number of piles: " + piles);
+		System.out.println("Total beeper count: " + beepers);
+		System.out.println("Largest pile size: " + largestPileSize);
+		System.out.println(
+				"Largest pile is at (relative to bottom left): " + largestPileRelativeAve + " units right and "
+						+ largestPileRelativeStreet + " units up.");
+		System.out.println("Average pile size: " + Math.round((double) beepers / piles));
+		System.out.println(
+				"Percent area dirty: " + (double) Math.round(10000 * (double) piles / area) / 100 + "%");
+		System.out.println("Dimensions: h" + height + ", w" + width);
+		System.out.println("-".repeat(29));
 
 		return beepers;
 	}
