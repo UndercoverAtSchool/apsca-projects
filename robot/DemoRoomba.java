@@ -48,7 +48,7 @@ public class DemoRoomba implements Directions {
 
 	}
 
-	public int cleanRoom(String worldName, int startX, int startY) {
+	public void cleanRoom(String worldName, int startX, int startY) {
 
 		World.readWorld(worldName);
 		World.setVisible(true);
@@ -129,6 +129,5 @@ public class DemoRoomba implements Directions {
 		System.out.println("Dimensions: h" + height + ", w" + width);
 		System.out.println("-".repeat(29));
 
-		return beepers;
 	}
 }
