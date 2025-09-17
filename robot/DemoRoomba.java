@@ -9,11 +9,13 @@ public class DemoRoomba implements Directions {
 	static int worldSpeed = 0;
 	private Robot roomba;
 
-	public static void logInfo(int totalCells, int totalPiles, int totalBeepers, int largestPile, int[] initialPosition,
-			int[] largestPileLoc) {
+	public static void logInfo(int totalCells, int totalPiles, int totalBeepers, int largestPile, int[] cornerPos,
+			int[] largestPileLoc, int dim1, int dim2) {
 
-		int largestPileRelative1 = largestPileLoc[0] - initialPosition[0];
-		int largestPileRelative2 = largestPileLoc[1] - initialPosition[1];
+		int largestPileRelative1 = largestPileLoc[0] - cornerPos[0];
+		int largestPileRelative2 = largestPileLoc[1] - cornerPos[1];
+
+		System.out.println("-".repeat(10) + " RESULTS " + "-".repeat(10));
 
 		System.out.println("Room area: " + totalCells);
 		System.out.println("Number of piles: " + totalPiles);
@@ -24,7 +26,11 @@ public class DemoRoomba implements Directions {
 						+ largestPileRelative1 + " units up.");
 
 		System.out.println("Average pile size: " + Math.round((double) totalBeepers / totalPiles));
-		System.out.println("Percent area dirty: " + Math.round(100 * (double) totalPiles / totalCells) + "%");
+		System.out.println(
+				"Percent area dirty: " + (double) Math.round(10000 * (double) totalPiles / totalCells) / 100 + "%");
+		System.out.println("Dimensions: h" + dim1 + ", w" + dim2);
+
+		System.out.println("-".repeat(29));
 
 	}
 
@@ -37,8 +43,7 @@ public class DemoRoomba implements Directions {
 		String worldName = "robot/wld/finalTestWorld2024.wld";
 
 		DemoRoomba cleaner = new DemoRoomba();
-		int totalBeepers = cleaner.cleanRoom(worldName, initialPos[0], initialPos[1]);
-		System.out.println("Roomba cleaned up a total of " + totalBeepers + " beepers.");
+		cleaner.cleanRoom(worldName, initialPos[0], initialPos[1]);
 
 	}
 
@@ -63,7 +68,7 @@ public class DemoRoomba implements Directions {
 		// If the current pile is the largest, update the largest pile
 		if (pileSize > largestPileSize) {
 			largestPileSize = pileSize;
-			System.out.println("updated to " + pileSize);
+			System.out.println("Found new largest pile: " + pileSize);
 			largestPilePos[0] = roomba.street();
 			largestPilePos[1] = roomba.avenue();
 
@@ -76,6 +81,7 @@ public class DemoRoomba implements Directions {
 		World.readWorld(worldName);
 		World.setVisible(true);
 		World.setDelay(worldSpeed);
+		World.setTrace(false); // prevent logspam
 
 		roomba = new Robot(startX, startY, West, 0); // Faces LEFT
 
@@ -93,44 +99,47 @@ public class DemoRoomba implements Directions {
 
 		// Now faces RIGHT/EAST
 
-		int[] dims = { 0, 0 }; // calculate area
+		int ave = 0;
+		int street = 0;
 
 		// Define initial values of dims (i and j), then repeat in circles
 		while (roomba.frontIsClear()) {
-			dims[0]++;
+			ave++;
 			pickAllAndUpdateLargest(roomba);
 			roomba.move();
 		}
 		roomba.turnLeft();
 		while (roomba.frontIsClear()) {
-			dims[1]++;
+			street++;
 			pickAllAndUpdateLargest(roomba);
 			roomba.move();
 		}
 		roomba.turnLeft();
-		int area = (dims[0] + 1) * (dims[1] + 1);
+		int width = ave + 1;
+		int height = street + 1;
+		int area = width * height;
 
 		// After defining dimensions, move around, decrementing one each time
 
-		while (dims[0] > 0 && dims[1] > 0) { // Stop after can't spiral
-			for (int i = 0; i < dims[0]; i++) {
+		while (ave > 0 && street > 0) { // Stop after can't spiral
+			for (int i = 0; i < ave; i++) {
 				pickAllAndUpdateLargest(roomba);
 				roomba.move();
 			}
-			dims[0]--;
+			ave--;
 
 			roomba.turnLeft();
-			for (int i = 0; i < dims[1]; i++) {
+			for (int i = 0; i < street; i++) {
 				pickAllAndUpdateLargest(roomba);
 				roomba.move();
 			}
-			dims[1]--;
+			street--;
 			roomba.turnLeft();
 
 		}
 		pickAllAndUpdateLargest(roomba); // Doesn't pick up last one - we must do it manually
 		logInfo(area, piles, beepers, largestPileSize, bottomLeft,
-				largestPilePos);
+				largestPilePos, height, width);
 
 		return beepers;
 	}

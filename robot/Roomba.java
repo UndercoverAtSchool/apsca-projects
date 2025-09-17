@@ -6,8 +6,8 @@ import kareltherobot.*;
 
 public class Roomba implements Directions {
 
-	// static int[] initialPos = { 7, 6 };
-	static int[] initialPos = { 25, 11 };
+	static int[] initialPos = { 7, 6 };
+	// static int[] initialPos = { 25, 11 };
 	static int worldSpeed = 1;
 
 	// Main method to make this self-contained
@@ -15,8 +15,8 @@ public class Roomba implements Directions {
 		// LEAVE THIS ALONE!!!!!!
 		// basic - start at 7, 6
 		// test 1 - start at 25, 11
-		String worldName = "robot/TestWorld-1.wld";
-		// String worldName = "robot/basicRoom.wld";
+		// String worldName = "robot/TestWorld-1.wld";
+		String worldName = "robot/wld/basicRoom.wld";
 
 		Roomba cleaner = new Roomba();
 		int totalBeepers = cleaner.cleanRoom(worldName, initialPos[0], initialPos[1]);
@@ -51,7 +51,7 @@ public class Roomba implements Directions {
 		if (useNewCoords) {
 			System.out.println(
 					"Largest pile is at (relative to bottom left): " + -1 * largestPileRelative2 + " units right and "
-							+ largestPileRelative1 + " units up.");
+							+ -1 * largestPileRelative1 + " units up.");
 
 		} else {
 			System.out.println("Largest pile is at (relative to top left): (" + -1 * largestPileRelative1 + ", "
