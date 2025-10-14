@@ -52,6 +52,9 @@ public class Book {
 
         // TODO: use Scanner to populate the book
         // use: text.add(line) to add a line to the book.
+        for (String line : string.split("\n")) {
+            text.add(line);
+        }
     }
 
     public void readFromUrl(String title, String url) {
@@ -61,6 +64,11 @@ public class Book {
 
         try {
             URL bookUrl = URI.create(url).toURL();
+            Scanner bookScanner = new Scanner(bookUrl.openStream());
+            while (bookScanner.hasNextLine()) {
+                text.add(bookScanner.nextLine());
+            }
+            bookScanner.close();
             // TODO: use Scanner to populate the book
             // Scanner can open a file on a URL like this:
             // Scanner(bookUrl.openStream())
