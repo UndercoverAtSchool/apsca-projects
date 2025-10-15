@@ -6,7 +6,7 @@ import java.util.stream.IntStream;
 public class PigLatinTranslator {
     public static Book translate(Book input) {
         Book translatedBook = new Book();
-
+        translatedBook.setTitle(input.getTitle() + " Translated");
         // TODO: Add code here to populate translatedBook with a translation of the
         // input book.
         // Curent do-nothing code will return an empty book.
@@ -34,7 +34,7 @@ public class PigLatinTranslator {
     }
 
     public static String translate(String input) {
-        System.out.println("  -> translate('" + input + "')");
+        // System.out.println(" -> translate('" + input + "')");
 
         String result = "";
 
@@ -74,7 +74,7 @@ public class PigLatinTranslator {
     }
 
     private static String translateWord(String input) {
-        System.out.println("  -> translateWord('" + input + "')");
+        // System.out.println(" -> translateWord('" + input + "')");
 
         if (input.length() == 0) {
             return "";

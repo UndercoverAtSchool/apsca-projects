@@ -52,9 +52,16 @@ public class Book {
 
         // TODO: use Scanner to populate the book
         // use: text.add(line) to add a line to the book.
-        for (String line : string.split("\n")) {
-            text.add(line);
+        // for (String line : string.splitWithDelimiters("\n", 0)) {
+        // text.add(line);
+        // }
+
+        Scanner s = new Scanner(string);
+        while (s.hasNextLine()) {
+            text.add(s.nextLine());
         }
+        s.close();
+
     }
 
     public void readFromUrl(String title, String url) {
@@ -81,5 +88,12 @@ public class Book {
     void writeToFile(String name) {
         // TODO: Add code here to write the contents of the book to a file.
         // Must write to file using provided name.
+        try (FileWriter writer = new FileWriter(name)) {
+            writer.write(String.join("\n", text));
+            writer.close();
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+
     }
 }
