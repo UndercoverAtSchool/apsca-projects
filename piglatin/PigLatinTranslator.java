@@ -94,7 +94,7 @@ public class PigLatinTranslator {
                 .toArray();
         input = input.toLowerCase();
 
-        while (pointer < input.length() && !contains(new char[] { 'a', 'e', 'i', 'o', 'u' }, input.charAt(pointer))) {
+        while (pointer < input.length() && "aeiouy".indexOf(input.charAt(pointer)) == -1) {
             Character c = input.charAt(pointer);
             result.append(c.toString());
             pointer++;
