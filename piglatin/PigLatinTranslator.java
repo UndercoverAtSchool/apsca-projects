@@ -89,7 +89,8 @@ public class PigLatinTranslator {
 
         int pointer = 0;
         final String tempin = input;
-        int[] capitals = IntStream.range(0, tempin.length()).map(n -> Character.isUpperCase(tempin.charAt(n)) ? 1 : 0)
+        int[] capitals = IntStream.range(0, tempin.length())
+                .map(n -> Character.isUpperCase(tempin.charAt(n)) ? 1 : 0)
                 .toArray();
         input = input.toLowerCase();
 
@@ -99,7 +100,7 @@ public class PigLatinTranslator {
             pointer++;
         }
 
-        result = new StringBuilder(input.substring(pointer) + result.toString() + "ay");
+        result = new StringBuilder(input.substring(pointer) + result.toString());
 
         for (int i = 0; i < capitals.length; i++) {
             int capital = capitals[i];
@@ -108,7 +109,9 @@ public class PigLatinTranslator {
             }
         }
 
-        return result.toString();
+        int capitalCount = IntStream.of(capitals).sum();
+
+        return result.toString() + (capitalCount == input.length() ? "AY" : "ay");
     }
 
     // Add additonal private methods here.
