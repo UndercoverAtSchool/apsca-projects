@@ -1,16 +1,11 @@
 package piglatin;
 
-import java.util.Arrays;
 import java.util.stream.IntStream;
 
 public class PigLatinTranslator {
     public static Book translate(Book input) {
         Book translatedBook = new Book();
         translatedBook.setTitle(input.getTitle() + " Translated");
-        // TODO: Add code here to populate translatedBook with a translation of the
-        // input book.
-        // Curent do-nothing code will return an empty book.
-        // Your code will need to call translate(String input) many times.
 
         for (int i = 0; i < input.getLineCount(); i++) {
             String line = input.getLine(i);
@@ -38,18 +33,6 @@ public class PigLatinTranslator {
 
         String result = "";
 
-        // input = "." + input;
-        // while (input.length() > 0) {
-        // String word = "";
-        // Character c = input.charAt(0);
-        // while (Character.isLetter(c)) {
-        // word += c.toString();
-        // input = input.substring(1);
-        // }
-        // result += (word.length() > 0 ? translateWord(word) : "") + c.toString();
-        // input = input.substring(1);
-        // }
-
         int pointer = 0;
         String word = "";
         input += " ";
@@ -66,10 +49,6 @@ public class PigLatinTranslator {
 
         }
 
-        // TODO: translate a string input, store in result.
-        // The input to this function could be any English string.
-        // It may be made up of many words.
-        // This method must call translateWord once for each word in the string.
         return result.substring(0, result.length() - 1);
     }
 
@@ -81,11 +60,6 @@ public class PigLatinTranslator {
         }
 
         StringBuilder result = new StringBuilder();
-        // while (input.length() > 0 && !contains(new char[] { 'a', 'e', 'i', 'o', 'u'
-        // }, input.charAt(0))) {
-        // result += input.substring(0, 1);
-        // input = input.substring(1);
-        // }
 
         int pointer = 0;
         final String tempin = input;
@@ -113,9 +87,5 @@ public class PigLatinTranslator {
 
         return result.toString() + (capitalCount == input.length() ? "AY" : "ay");
     }
-
-    // Add additonal private methods here.
-    // For example, I had one like this:
-    // private static String capitalizeFirstLetter(String input)
 
 }

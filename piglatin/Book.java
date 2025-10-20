@@ -10,11 +10,8 @@ public class Book {
     private ArrayList<String> text = new ArrayList<String>();
 
     Book() {
-        // Empty book - no code needed here.
     }
 
-    // Helper to debug code
-    // Prints out a range of lines from a book
     public void printlines(int start, int length) {
         System.out.println("Lines " + start + " to " + (start + length) + " of book: " + title);
         for (int i = start; i < start + length; i++) {
@@ -47,14 +44,7 @@ public class Book {
     }
 
     public void readFromString(String title, String string) {
-        // load a book from an input string.
         this.title = title;
-
-        // TODO: use Scanner to populate the book
-        // use: text.add(line) to add a line to the book.
-        // for (String line : string.splitWithDelimiters("\n", 0)) {
-        // text.add(line);
-        // }
 
         Scanner s = new Scanner(string);
         while (s.hasNextLine()) {
@@ -76,18 +66,12 @@ public class Book {
                 text.add(bookScanner.nextLine());
             }
             bookScanner.close();
-            // TODO: use Scanner to populate the book
-            // Scanner can open a file on a URL like this:
-            // Scanner(bookUrl.openStream())
-            // use: text.add(line) to add a line to the book.
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
 
     void writeToFile(String name) {
-        // TODO: Add code here to write the contents of the book to a file.
-        // Must write to file using provided name.
         try (FileWriter writer = new FileWriter(name)) {
             writer.write(String.join("\n", text));
             writer.close();
