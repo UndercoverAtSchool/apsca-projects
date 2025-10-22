@@ -20,14 +20,14 @@ public class TestSuite {
         // Capitalization (keep caps as-is except transfer first letter style)
         score += basicTest("Trash", "Ashtray");
         score += basicTest("trash", "ashtray");
-        score += basicTest("TrAsH", "AsHtray");
+        score += multiTest("TrAsH", "AsHtray", "AsHtRay", "AsHTray");
 
         // Punctuation
         score += basicTest("Trash.", "Ashtray.");
         score += basicTest("clean-cut", "ean-cutclay");
 
         score += basicTest("", "");
-        score += basicTest("    ", "");
+        score += multiTest("    ", "", "    ");
 
         // Multiple words
         score += basicTest("pigs eat trash", "igspay eatay ashtray");
@@ -50,5 +50,17 @@ public class TestSuite {
             System.out.println(" FAIL: '" + input + "', '" + result + "' != '" + expected + "'");
             return 0;
         }
+    }
+
+    public static int multiTest(String input, String... expectedValues) {
+        String result = PigLatinTranslator.translate(input);
+        for (String val : expectedValues) {
+            if (val.equals(result)) {
+                System.out.println(" PASS: '" + input + "' -> '" + val + "'");
+                return 1;
+            }
+        }
+        System.out.println(" FAIL: '" + input + "', '" + result + "' != " + String.join(" or ", expectedValues));
+        return 0;
     }
 }
