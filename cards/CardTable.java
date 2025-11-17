@@ -35,12 +35,17 @@ public class CardTable {
                     continue;
                 } else if (command.equals("r")) {
                     // Reset
+                    deck = new Deck();
+                    deck.shuffle();
                     game = new Game(deck);
-                } else {
+                    game.next();
+                } else if (command.equals("h") || command.equals("s")) {
                     // Play on!
-                    boolean result = game.takeTurn(command);
-                    if (result == false) {
+                    if (!game.takeTurn(command)) {
                         System.out.println("\n");
+                        deck = new Deck();
+                        deck.shuffle();
+                        game = new Game(deck);
                         game.next();
                     }
                 }

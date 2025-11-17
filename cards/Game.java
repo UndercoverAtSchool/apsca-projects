@@ -6,7 +6,9 @@ public class Game {
     private Hand player;
     private Hand dealer;
 
+    @SuppressWarnings("unused")
     private int playersWins;
+    @SuppressWarnings("unused")
     private int dealersWins;
 
     public Game(Deck deck) {
@@ -21,8 +23,17 @@ public class Game {
     }
 
     private void printState() {
-        System.out.println("Player - Score: " + score(player) + " Hand: " + player.toString());
-        System.out.println("Dealer - Score: " + score(dealer) + " Hand: " + dealer.toString());
+        String s1 = "│ Player - Score: " + score(player) + " Hand: " + player.toString() + " │";
+        String s2 = "│ Dealer - Score: " + score(dealer) + " Hand: " + dealer.toString() + " │";
+        int maxLen = Math.max(s1.length(), s2.length());
+        String topBorder = "┌" + "─".repeat(maxLen - 2) + "┐";
+        String bottomBorder = "└" + "─".repeat(maxLen - 2) + "┘";
+        String paddedS1 = s1.substring(0, s1.length() - 1) + " ".repeat(maxLen - s1.length()) + "│";
+        String paddedS2 = s2.substring(0, s2.length() - 1) + " ".repeat(maxLen - s2.length()) + "│";
+        System.out.println(topBorder);
+        System.out.println(paddedS1);
+        System.out.println(paddedS2);
+        System.out.println(bottomBorder);
     }
 
     public void next() {
@@ -45,9 +56,7 @@ public class Game {
         card = deck.draw();
         dealer.add(card);
 
-        System.out.println("Player - Score: " + score(player) + " Hand: " + player.toString());
-        System.out.println("Dealer - Score: " + score(dealer) + " Hand: " + dealer.toString());
-
+        printState();
     }
 
     public boolean takeTurn(String action) {
@@ -67,15 +76,17 @@ public class Game {
             // Evaluate Player's Score
             int playerScore = score(player);
             if (playerScore == 21) {
-                System.out.println("You win!");
+                System.out.println("YOU WIN!");
                 playersWins++;
                 printState();
+                System.out.println("-".repeat(30));
                 return false;
             }
             if (playerScore > 21) {
                 System.out.println("BUST! You loose.");
                 dealersWins++;
                 printState();
+                System.out.println("-".repeat(30));
                 return false;
             }
 
@@ -88,20 +99,21 @@ public class Game {
             // Evaluate Dealer's Score
             int dealerScore = score(dealer);
             if (dealerScore == 21) {
-                System.out.println("Dealer wins.");
+                System.out.println("Dealer wins (blackjack!).");
                 dealersWins++;
                 printState();
+                System.out.println("-".repeat(30));
                 return false;
             }
             if (dealerScore > 21) {
                 System.out.println("You win! Dealer bust.");
                 playersWins++;
                 printState();
+                System.out.println("-".repeat(30));
                 return false;
             }
 
             if ((score(dealer) >= 17) && standing) {
-                System.out.println("Game done.");
                 if (score(player) > score(dealer)) {
                     playersWins++;
                     System.out.println("Player wins!");
@@ -110,6 +122,7 @@ public class Game {
                     System.out.println("Player wins!");
                 }
                 printState();
+                System.out.println("-".repeat(30));
                 return false;
             }
 
