@@ -6,6 +6,10 @@ public class Game {
     private Hand player;
     private Hand dealer;
 
+    private static final String ANSI_RESET = "\u001B[0m";
+    private static final String ANSI_RED = "\u001B[31m";
+    private static final String ANSI_GREEN = "\u001B[32m";
+
     @SuppressWarnings("unused")
     private int playersWins;
     @SuppressWarnings("unused")
@@ -76,14 +80,14 @@ public class Game {
             // Evaluate Player's Score
             int playerScore = score(player);
             if (playerScore == 21) {
-                System.out.println("YOU WIN!");
+                printlnColor("YOU WIN!", ANSI_GREEN);
                 playersWins++;
                 printState();
                 System.out.println("-".repeat(30));
                 return false;
             }
             if (playerScore > 21) {
-                System.out.println("BUST! You loose.");
+                printlnColor("BUST! You loose.", ANSI_RED);
                 dealersWins++;
                 printState();
                 System.out.println("-".repeat(30));
@@ -99,14 +103,14 @@ public class Game {
             // Evaluate Dealer's Score
             int dealerScore = score(dealer);
             if (dealerScore == 21) {
-                System.out.println("Dealer wins (blackjack!).");
+                printlnColor("Dealer wins (blackjack!).", ANSI_RED);
                 dealersWins++;
                 printState();
                 System.out.println("-".repeat(30));
                 return false;
             }
             if (dealerScore > 21) {
-                System.out.println("You win! Dealer bust.");
+                printlnColor("You win! Dealer bust.", ANSI_GREEN);
                 playersWins++;
                 printState();
                 System.out.println("-".repeat(30));
@@ -116,10 +120,10 @@ public class Game {
             if ((score(dealer) >= 17) && standing) {
                 if (score(player) > score(dealer)) {
                     playersWins++;
-                    System.out.println("Player wins!");
+                    printlnColor("Player wins!", ANSI_GREEN);
                 } else {
                     dealersWins++;
-                    System.out.println("Player wins!");
+                    printlnColor("Player wins!", ANSI_RED);
                 }
                 printState();
                 System.out.println("-".repeat(30));
@@ -132,8 +136,13 @@ public class Game {
         return true;
     }
 
+    private void printlnColor(String text, String color) {
+        System.out.println(color + text + ANSI_RESET);
+    }
+
     private int score(Hand hand) {
         int score = 0;
+        boolean hasAce = false;
         for (int i = 0; i < hand.length(); i++) {
             Card card = hand.get(i);
             int value = card.getValue() + 1;
@@ -142,6 +151,11 @@ public class Game {
             }
             // TODO: deal with aces
             score += value;
+            if (value == 1)
+                hasAce = true;
+        }
+        if (score <= 11 && hasAce) {
+            score += 10;
         }
         return score;
     }
