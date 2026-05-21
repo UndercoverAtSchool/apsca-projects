@@ -46,10 +46,12 @@ public class TowerModel {
 
 
     // Move one disk from the source stack to the destination stack.
-    public void move(int source, int destination)
+    public void move(int s, int d)
     {
-        System.out.println("Move #" + ++moveCounter + " from " + source + " to " + destination);
-        // TODO!!
+        System.out.println("Move #" + ++moveCounter + " from " + s + " to " + d);
+        int v = towers[s].peek();
+        if (v != 0 && (towers[d].peek() == 0 || v < towers[d].peek()))
+            towers[d].push(towers[s].pop());
     }
 
     // Helper method to nicely print the current model state.
